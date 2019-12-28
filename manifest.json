@@ -8,8 +8,9 @@
     },
     "content_scripts": [
         {
+            "css": ["styles.css"],
             "matches": ["<all_urls>"],
-            "js": ["content.js"]
+            "js": ["UI.js", "content.js"]
         }
     ],
     "background": {
