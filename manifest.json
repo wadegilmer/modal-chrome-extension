@@ -1,0 +1,22 @@
+{
+    "manifest_version": 2,
+    "name": "Modal Menu Extension",
+    "description": "A quick extension exercise to create a modal instead of a popup",
+    "version": "1.0.0",
+    "browser_action": {
+        "default_icon": "icon32.png"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "permissions": [
+        "activeTab"
+      ]
+}
