@@ -1,5 +1,6 @@
 class UI {
-    //#region Modal Static Method
+
+    //#region Modal Menu Static Method
     static modalMenu(){
 
         const modal = document.createElement('div');
@@ -38,9 +39,15 @@ class UI {
             box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.1), 0 3px 5px 0 rgba(0, 0, 0, 0.17);
             border-radius: 5px;
         `;
-        // modalContent.innerHTML = `
-        //     <p>Hello... I am a modal</p>
-        // `;
+        modalContent.innerHTML = `
+            <div class="form-field">
+                <form class="form">
+                    <input id="addTag" class="u-full-width" type="text" placeholder="Add tag" autocomplete="off">
+                </form>
+            </div>
+
+            <div class="tags"></div>
+        `;
 
         modal.appendChild(modalContent)
 
@@ -48,6 +55,31 @@ class UI {
     }
     //#endregion
 
+    //#region Add Tag Static Method
+    static addTag(e, tag) {
 
+        // Get rid of trailing white space
+        tag = tag.replace(/\s*$/,"");
+
+        // create tag div
+        let chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `${tag}<span class="closebtn";>&times;</span>`;
+        
+        // verify tag doesn't already exit
+        document.querySelectorAll('.chip').forEach(function(t) {
+            if(t.textContent === (tag + '×')) {
+                t.remove();
+            }
+        });
+        
+        // verify input field has content
+        if(tag != '') {
+
+            // append div to menu
+            return chip;
+        }
+    }
+    //#endregion
 
 }
