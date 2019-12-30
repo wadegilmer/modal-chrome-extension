@@ -94,7 +94,8 @@ class UI {
 
     //#region Close Modal Static Method
     static closeMenu() {
-        document.querySelector('body').firstChild.remove();
+        let body = document.querySelector('body');
+        body.firstChild.remove();
     }
 
     //#endregion
