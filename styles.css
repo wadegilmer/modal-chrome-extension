@@ -1,11 +1,20 @@
 input.u-full-width {
     border-radius: 5px;
-    padding: 10px;
+    padding: 0 5px !important;
     width: 100%;
 }
   
 input.u-full-width:hover {
-    border: 1px solid #373737;
+    border: 1px solid #373737 !important;
+}
+
+#tagBtn:hover {
+    background-color: #CBCBCB !important;
+    cursor: pointer !important;
+    -webkit-user-select: none !important; /* Safari */        
+    -moz-user-select: none !important; /* Firefox */
+    -ms-user-select: none !important; /* IE10+/Edge */
+    user-select: none !important; /* Standard */
 }
 
 .tags {

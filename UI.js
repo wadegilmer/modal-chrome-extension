@@ -8,6 +8,8 @@ class UI {
         modal.classList.add("modal");
         modal.style.cssText = `
             all: unset;
+            font-family: Helvetica Neue;
+            font-size: 12px;
             margin: 0;
             padding: 0;
             display: block;
@@ -30,6 +32,7 @@ class UI {
             background-color: #f4f4f4;
             margin-top: 5%;
             margin-right: 10%;
+            position: relative;
             float: right;
             padding: 20px;
             width: 140px;
@@ -40,33 +43,74 @@ class UI {
             border-radius: 5px;
         `;
         modalContent.innerHTML = `
-            <div class="form-field">
-                <form class="form">
-                    <input id="addTag" class="u-full-width" type="text" placeholder="Add tag" autocomplete="off">
+            <div class="form-field" style="all: unset;">
+                <form class="form" style="all: unset;">
+                    <input id="addTag" class="u-full-width" type="text" placeholder="Add tag" autocomplete="off" style="all: unset; border-radius: 25px; border: 1px solid #EAEAEA; height: 25px;">
                 </form>
             </div>
 
             <div class="tags"></div>
         `;
 
+        // const div = document.createElement('div');
+        // div.classList.add('form-field');
+        // const form = document.createElement('form');
+        // form.classList.add('form');
+        // const input = document.createElement('input');
+        // input.setAttribute('id', 'addTag');
+        // input.setAttribute('type', 'text');
+        // input.setAttribute('autocomplete', 'off');
+        // input.setAttribute('placeholder', 'Add Tag');
+        
+        // form.appendChild(input);
+        // div.appendChild(form)
+        // modalContent.appendChild(div);
+
+        const tagBtn = document.createElement('div');
+        tagBtn.setAttribute('id', 'tagBtn');
+        tagBtn.innerText = 'Send Tags';
+        tagBtn.style.cssText = `
+            all: unset;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            margin: 3%;
+            width: 80%;
+            padding: 10px;
+            height: 15px;
+            font-size: 11px;
+            border-radius: 25px;
+            background-color: #EAEAEA;
+            text-align: center;
+            vertical-align: center;
+        `;
+        
+        modalContent.appendChild(tagBtn);
         modal.appendChild(modalContent)
 
         return modal;
     }
     //#endregion
 
-    //#region Add Tag Static Method
+    //#region Close Modal Static Method
+    static closeMenu() {
+        document.querySelector('body').firstChild.remove();
+    }
+
+    //#endregion
+
+    //#region Add Tag To Menu Static Method
     static addTag(e, tag) {
 
         // Get rid of trailing white space
-        tag = tag.replace(/\s*$/,"");
+        tag = tag.replace(/\s*$/,"").toLowerCase();
 
         // create tag div
         let chip = document.createElement('div');
         chip.className = 'chip';
         chip.innerHTML = `${tag}<span class="closebtn";>&times;</span>`;
         
-        // verify tag doesn't already exit
+        // verify tag doesn't already exit TODO: instead of removing the chip, only add it if does not exists
         document.querySelectorAll('.chip').forEach(function(t) {
             if(t.textContent === (tag + '×')) {
                 t.remove();
