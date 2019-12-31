@@ -1,10 +1,5 @@
 {
     "manifest_version": 2,
-    "_comments": [
-        {
-            "activeTab": "This grants secure access to the active site's host and temporary access to the tabs permission, enabling the content script to run on the current active tab"
-        }
-    ],
     "name": "Modal Menu Extension",
     "description": "A quick extension exercise to create a modal instead of a popup",
     "version": "1.0.0",
@@ -23,6 +18,10 @@
         "persistent": false
     },
     "permissions": [
+        "tabs",
+        "<all_urls>",
+        "*://*/*",
+        "contextMenus",
         "activeTab"
-      ]
+    ]
 }

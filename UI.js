@@ -104,7 +104,7 @@ class UI {
     static addTag(e, tag) {
 
         // Get rid of trailing white space
-        tag = tag.replace(/\s*$/,"").toLowerCase();
+        tag = tag.replace(/\s*$/,"");
 
         // create tag div
         let chip = document.createElement('div');
@@ -113,17 +113,13 @@ class UI {
         
         // verify tag doesn't already exit TODO: instead of removing the chip, only add it if does not exists
         document.querySelectorAll('.chip').forEach(function(t) {
-            if(t.textContent === (tag + '×')) {
+            if(t.textContent.toLowerCase() === (tag.toLowerCase() + '×')) {
                 t.remove();
             }
         });
-        
-        // verify input field has content
-        if(tag != '') {
 
-            // append div to menu
-            return chip;
-        }
+        // append div to menu
+        document.querySelector('.tags').appendChild(chip);
     }
     //#endregion
 

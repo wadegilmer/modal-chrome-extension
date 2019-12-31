@@ -29,41 +29,8 @@ function openModal(port) {
                 document.querySelector('body').addEventListener('keydown', addTag);
 
                 // Listener for when the submit button is pressed and to send the tags to background script
-                document.querySelector('body').addEventListener('click', (e) => {
+                document.querySelector('#tagBtn').addEventListener('click', () => port.postMessage({action: "fetchAll"}));
 
-                    if (e.target.id == 'tagBtn') {
-
-                        let tags = [];
-                
-                        // retrieve the tag elements
-                        let el = document.querySelectorAll('.chip');
-                
-                        if (el.length != 0) {
-
-                            el.forEach((node) => {
-                
-                                // get the text content of the tag
-                                let tag = node.textContent;
-                
-                                // get rid of the trailing x
-                                tag = tag.substring(0, tag.length - 1);
-                
-                                // push tag to the array
-                                tags.push(tag)
-                                
-                            });
-
-                        // send the tags array
-                        port.postMessage({tags: JSON.stringify(tags)});
-
-                        // close modal
-                        UI.closeMenu();
-
-                        // disconnect port
-                        port.disconnect();
-                        }
-                    }
-                });
             }
             else {
                 // on click, if modal already exists, toggle display to none
@@ -74,7 +41,7 @@ function openModal(port) {
 }
 //#endregion
 
-//#region Function to create tag to the UI
+//#region TODO: ADD FUNCTION TO UI INSTEAD / Function to create tag to the UI 
 function addTag(e) {
 
     // if the target is on the input of the modal and if enter is pressed
@@ -83,13 +50,10 @@ function addTag(e) {
         if (e.target.value != '') {
 
             // pass the input to the UI
-            let chip = UI.addTag(e, e.target.value);
+            UI.addTag(e, e.target.value);
 
             // clear input field
             e.target.value = '';
-
-            // add the element to the modal
-            document.querySelector('.tags').appendChild(chip);
         }
 
         e.preventDefault();
@@ -97,32 +61,3 @@ function addTag(e) {
 }
 //#endregion
 
-//#region DEFUNCT Function to retrieve tags from the UI
-function getTags(e) {
-
-    if (e.target.id == 'tagBtn') {
-
-        let tags = [];
-
-        // retrieve the tag elements
-        let el = document.querySelectorAll('.chip');
-
-        if (el.length != 0) {
-            el.forEach((node) => {
-
-                // get the text content of the tag
-                let tag = node.textContent;
-
-                // get rid of the trailing x
-                tag = tag.substring(0, tag.length - 1);
-
-                // push tag to the array
-                tags.push(tag)
-                
-            });
-        }
-        // return tags array
-        return tags;
-    }
-}
-//#endregion
