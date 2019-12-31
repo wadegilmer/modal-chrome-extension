@@ -1,3 +1,4 @@
+//#region Class Structures
 class Tab {
     constructor(id, title, tags) {
         this.id = id;
@@ -11,8 +12,9 @@ class TabGroup {
       this.tabMeta = [];
     }
 }
+//#endregion
 
-// Async / Await
+//#region Fetch Data
 async function fetchTabData(action) {
 
     if (action == 'fetchAll') {
@@ -47,10 +49,9 @@ async function fetchTabData(action) {
 function fetchTabs() {
     return new Promise((resolve, reject) => {
         chrome.tabs.query({
-            currentWindow: true
-          }, tabs => resolve(tabs.filter(t => t.url != chrome.runtime.getURL('_generated_background_page.html'))));
-
-          // TODO reject chrome://
+            currentWindow: true }, 
+            tabs => resolve(tabs.filter(t => !t.url.includes('chrome://')))
+        ); 
     });
 }
 
@@ -72,12 +73,9 @@ function fetchTags(tabId) {
             );
     });
 }
+//#endregion
 
-
-
-
-
-// Listener for the extension icon click
+//#region Listeners And Messages to Content Script
 chrome.browserAction.onClicked.addListener(establishPort);
 
 // Function to establish connection
@@ -92,3 +90,5 @@ function establishPort(tab) {
     // Listen for a response
     port.onMessage.addListener((request, sender, sendResponse) => fetchTabData(request.action));    
 }
+//#endregion
+

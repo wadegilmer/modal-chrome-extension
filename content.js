@@ -10,30 +10,28 @@ function openModal(port) {
 
     // Throws error in the console if port name is not correct
     // console.assert(port.name == "establish_connection");
-    console.log(`content_script: ${port.sender.Tab}`);
 
-    port.onMessage.addListener(request => {
+    port.onMessage.addListener((request, sender, sendResponse) => {
 
         // If action is openModal
         if (request.action == "openModal") {
             
             let modal = document.querySelector('#modalMenu');
-            let body = document.querySelector('body');
 
             if (!modal) {
 
-                // on click, insert modal menu into the view
-                body.insertBefore(UI.modalMenu(), body.firstChild);
+                // Insert modal menu into the view
+                UI.modalMenu();
 
-                // Listener for the add tag while port is open using event delegation
-                document.querySelector('body').addEventListener('keydown', addTag);
+                // Initialize listener for the add tag while port is open using event delegation
+                document.querySelector('body').addEventListener('keydown', UI.addTag);
 
-                // Listener for when the submit button is pressed and to send the tags to background script
+                // Initialize listener for when the submit button is pressed
                 document.querySelector('#tagBtn').addEventListener('click', () => port.postMessage({action: "fetchAll"}));
 
             }
             else {
-                // on click, if modal already exists, toggle display to none
+                // If modal already exists, toggle the class to display none
                 modal.classList.toggle('toggleMenu');
             }
         }
@@ -42,22 +40,22 @@ function openModal(port) {
 //#endregion
 
 //#region TODO: ADD FUNCTION TO UI INSTEAD / Function to create tag to the UI 
-function addTag(e) {
+// function addTag(e) {
 
-    // if the target is on the input of the modal and if enter is pressed
-    if (e.target.id == 'addTag' && e.which == 13 || e.keyCode == 13) {
+//     // if the target is on the input of the modal and if enter is pressed
+//     if (e.target.id == 'addTag' && e.which == 13 || e.keyCode == 13) {
 
-        if (e.target.value != '') {
+//         if (e.target.value != '') {
 
-            // pass the input to the UI
-            UI.addTag(e, e.target.value);
+//             // pass the input to the UI
+//             UI.addTag(e, e.target.value);
 
-            // clear input field
-            e.target.value = '';
-        }
+//             // clear input field
+//             e.target.value = '';
+//         }
 
-        e.preventDefault();
-    }
-}
+//         e.preventDefault();
+//     }
+// }
 //#endregion
 

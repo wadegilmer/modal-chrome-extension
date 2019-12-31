@@ -1,6 +1,6 @@
 class UI {
 
-    //#region Modal Menu Static Method
+    //#region Insert Menu Static Method
     static modalMenu(){
 
         const modal = document.createElement('div');
@@ -88,11 +88,12 @@ class UI {
         modalContent.appendChild(tagBtn);
         modal.appendChild(modalContent)
 
-        return modal;
+        let body = document.querySelector('body');
+        body.insertBefore(modal, body.firstChild);
     }
     //#endregion
 
-    //#region Close Modal Static Method
+    //#region Remove Modal Static Method
     static closeMenu() {
         let body = document.querySelector('body');
         body.firstChild.remove();
@@ -100,26 +101,40 @@ class UI {
 
     //#endregion
 
-    //#region Add Tag To Menu Static Method
-    static addTag(e, tag) {
+    //#region Insert Tag Static Method
+    static addTag(e) {
 
-        // Get rid of trailing white space
-        tag = tag.replace(/\s*$/,"");
+        // if the target is on the input of the modal and if enter is pressed
+        if (e.target.id == 'addTag' && e.which == 13 || e.keyCode == 13) {
 
-        // create tag div
-        let chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.innerHTML = `${tag}<span class="closebtn";>&times;</span>`;
-        
-        // verify tag doesn't already exit TODO: instead of removing the chip, only add it if does not exists
-        document.querySelectorAll('.chip').forEach(function(t) {
-            if(t.textContent.toLowerCase() === (tag.toLowerCase() + '×')) {
-                t.remove();
+            if (e.target.value != '') {
+
+                let tag = e.target.value;
+
+                // Get rid of trailing white space
+                tag = tag.replace(/\s*$/,"");
+
+                // Create the tag div
+                let chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.innerHTML = `${tag}<span class="closebtn";>&times;</span>`;
+                
+                // verify tag doesn't already exit and if it does replace it with an updated case version
+                document.querySelectorAll('.chip').forEach(function(t) {
+                    if(t.textContent.toLowerCase() === (tag.toLowerCase() + '×')) {
+                        t.remove();
+                    }
+                });
+
+                // append div to menu
+                document.querySelector('.tags').appendChild(chip);
+
+                // clear input field
+                e.target.value = '';
             }
-        });
-
-        // append div to menu
-        document.querySelector('.tags').appendChild(chip);
+            e.preventDefault();
+        }
+        
     }
     //#endregion
 
