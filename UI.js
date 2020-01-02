@@ -1,6 +1,6 @@
 class UI {
 
-    //#region Insert Menu Static Method
+    //#region Insert Menu
     static modalMenu(){
 
         const modal = document.createElement('div');
@@ -66,6 +66,29 @@ class UI {
         // div.appendChild(form)
         // modalContent.appendChild(div);
 
+
+        // Highlight Button
+        const highlightBtn = document.createElement('div');
+        highlightBtn.setAttribute('id', 'hlBtn');
+        highlightBtn.innerText = 'Hightlights Off';
+        highlightBtn.style.cssText = `
+            all: unset;
+            position: absolute;
+            bottom: 1;
+            left: 0;
+            margin: 3%;
+            width: 80%;
+            padding: 10px;
+            height: 15px;
+            font-size: 11px;
+            border-radius: 25px;
+            background-color: #EAEAEA;
+            text-align: center;
+            vertical-align: center;
+        `;
+        modalContent.appendChild(highlightBtn);
+
+        // Send Tag Button
         const tagBtn = document.createElement('div');
         tagBtn.setAttribute('id', 'tagBtn');
         tagBtn.innerText = 'Send Tags';
@@ -93,7 +116,7 @@ class UI {
     }
     //#endregion
 
-    //#region Remove Modal Static Method
+    //#region Remove Modal
     static closeMenu() {
         let body = document.querySelector('body');
         body.firstChild.remove();
@@ -101,7 +124,7 @@ class UI {
 
     //#endregion
 
-    //#region Insert Tag Static Method
+    //#region Insert Tag
     static addTag(e) {
 
         // if the target is on the input of the modal and if enter is pressed
@@ -138,4 +161,97 @@ class UI {
     }
     //#endregion
 
+    //#region Turn On Highlight Settings
+    static turnHighlightOn(button) {
+
+        // Change the button to display on
+        button.innerText = 'Highlights On';
+
+        // Add selection rule to change color of selected texts // TODO: put in separate function call
+        const style = document.createElement('style');
+        document.head.appendChild(style);
+        let stylesheet = style.sheet;
+        stylesheet.insertRule(`
+            ::selection {
+                background: rgb(252, 243, 127);
+            }
+        `, stylesheet.cssRules.length);
+    }
+    //#endregion
+
+    //#region Turn Off Highlight Settings
+    static turnHighlightOff(button) {
+
+        // Change the button to display off
+        button.innerText = 'Highlights Off';
+
+        // Delete the selection css changes
+        document.styleSheets[document.styleSheets.length - 1].deleteRule(0);
+    }
+    //#endregion
+
+    //#region Highlight Selection
+    static addHighlight() {
+        console.log('Inside the add highlight function');
+        
+
+        if(window.getSelection().toString() != '') {
+
+            let selection = window.getSelection(); // The selected content
+            console.log(selection.toString());
+    
+            let range = selection.getRangeAt(0); // The Range Object of the selection
+            let clone = range.cloneRange(); // The Range Object clone of the selection
+    
+            let a = range.startContainer.parentElement; // Parent element of the start
+            let n = a; // Parent element of the middle
+            let z = range.endContainer.parentElement; // Parent element of the end
+
+            let ai = a.innerHTML; // Inner html of first parent
+            let ni; // Inner html of middle parent
+            let zi = z.innerHTML; // Inner html of last parent
+
+            let ax = selection.anchorOffset; // Start index of selection
+            let ay = ai.length; // End index of first parent
+
+            let nx = 0; // Start index of middle parent
+            let ny; // End index of middle parent
+
+            let my; // End index of middle parent alternative
+
+            let zx = 0; // Start index of last parent
+            let zy = selection.focusOffset; // End index of selection
+    
+            // If the selection is within the same parent
+            if (a == z) {
+                ai = `
+                    ${ai.substring(0, ax)}
+                    <span class="highlight">
+                    ${ai.substring(ax, zy)}
+                    </span>
+                    ${ai.substring(zy, ay)}
+                `;
+            }
+
+            // If the selection crosses over multiple parents
+            while (n != z) {
+                n = n.nextElementSibling;
+                ni = n.innerHTML;
+                ny = ni.length;
+                my = ni.length;
+
+                // If parent is the last parent
+                if (n == z) { my = zy }
+
+                ni = `
+                    <span class="highlight">
+                    ${ni.substring(nx, my)}
+                    </span>
+                    ${ai.substring(my, ny)}
+                `;
+            }
+    
+        }
+    }
+    //#endregion
 }

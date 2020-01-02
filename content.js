@@ -23,8 +23,11 @@ function openModal(port) {
                 // Insert modal menu into the view
                 UI.modalMenu();
 
-                // Initialize listener for the add tag while port is open using event delegation
+                // Initialize listener for the add tag using event delegation
                 document.querySelector('body').addEventListener('keydown', UI.addTag);
+
+                // Initialize listener for toggling the highlights on/off
+                document.querySelector('#hlBtn').addEventListener('click', switchHighlight);
 
                 // Initialize listener for when the submit button is pressed
                 document.querySelector('#tagBtn').addEventListener('click', () => port.postMessage({action: "fetchAll"}));
@@ -39,23 +42,25 @@ function openModal(port) {
 }
 //#endregion
 
-//#region TODO: ADD FUNCTION TO UI INSTEAD / Function to create tag to the UI 
-// function addTag(e) {
+// Function to switch highlight on/off
+function switchHighlight(e) {
 
-//     // if the target is on the input of the modal and if enter is pressed
-//     if (e.target.id == 'addTag' && e.which == 13 || e.keyCode == 13) {
+    // Toggle the button style
+    e.target.classList.toggle('toggleHighlight');
 
-//         if (e.target.value != '') {
+    if (e.target.classList.contains('toggleHighlight')) { 
+        // Change to button and the selection style
+        UI.turnHighlightOn(e.target);
 
-//             // pass the input to the UI
-//             UI.addTag(e, e.target.value);
+        // Initialize listener to wrap selected text in a span
+        document.body.addEventListener('click', UI.addHighlight);
+    } 
+    else { 
+        // Change to button and the selection style
+        UI.turnHighlightOff(e.target); 
 
-//             // clear input field
-//             e.target.value = '';
-//         }
+        // Turn off listener to wrap selected text
+        document.body.removeEventListener('click', UI.addHighlight)
 
-//         e.preventDefault();
-//     }
-// }
-//#endregion
-
+    }
+}

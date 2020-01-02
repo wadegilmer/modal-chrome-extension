@@ -17,6 +17,23 @@ input.u-full-width:hover {
     user-select: none !important; /* Standard */
 }
 
+.toggleHighlight {
+    background-color: rgb(252, 243, 127) !important;
+}
+
+.highlight {
+    background-color: rgb(252, 243, 127) !important;
+}
+
+#hlBtn:hover {
+    background-color: #CBCBCB !important;
+    cursor: pointer !important;
+    -webkit-user-select: none !important; /* Safari */        
+    -moz-user-select: none !important; /* Firefox */
+    -ms-user-select: none !important; /* IE10+/Edge */
+    user-select: none !important; /* Standard */
+}
+
 .tags {
     margin-top: 15px;
 }
@@ -53,4 +70,3 @@ input.u-full-width:hover {
     from {opacity: 0}
     to {opacity: 1}
 }
-
