@@ -1,4 +1,5 @@
 class UI {
+    static ruleIndex = [];
 
     //#region Insert Menu
     static modalMenu(){
@@ -169,13 +170,37 @@ class UI {
 
         // Add selection rule to change color of selected texts // TODO: put in separate function call
         const style = document.createElement('style');
-        document.head.appendChild(style);
-        let stylesheet = style.sheet;
-        stylesheet.insertRule(`
-            ::selection {
-                background: rgb(252, 243, 127);
-            }
-        `, stylesheet.cssRules.length);
+
+        try {
+            let stylesheet = style.sheet;
+            let selectionIndex = document.styleSheets[0].insertRule(`
+                ::selection {
+                    background: rgb(252, 243, 127);
+                }
+            `, 0);
+            let curserIndex = document.styleSheets[0].insertRule(`
+                .highlight:hover {
+                    cursor: pointer;
+                }
+            `, 1);
+            // So we can have access the index to delete the rule later
+            this.ruleIndex.push(selectionIndex);
+            this.ruleIndex.push(curserIndex)
+        } catch(DOMException) {
+            console.log(`Ugh Ugh Ugh, You Didn't Say the Magic Word`);
+            document.head.appendChild(style);
+            let stylesheet = style.sheet;
+            stylesheet.insertRule(`
+                ::selection {
+                    background: rgb(252, 243, 127);
+                }
+            `, stylesheet.cssRules.length);
+            stylesheet.insertRule(`
+                .highlight:hover {
+                    cursor: pointer;
+                }
+            `, stylesheet.cssRules.length);
+        }
     }
     //#endregion
 
@@ -186,12 +211,17 @@ class UI {
         button.innerText = 'Highlights Off';
 
         // Delete the selection css changes
-        document.styleSheets[document.styleSheets.length - 1].deleteRule(0);
+        try {
+            document.styleSheets[0].deleteRule(this.ruleIndex[1])
+            document.styleSheets[0].deleteRule(this.ruleIndex[0])
+        } catch(DOMException) {
+            document.styleSheets[document.styleSheets.length - 1].deleteRule(0);
+        }
     }
     //#endregion
 
     //#region Highlight Selection
-    static addHighlight() {
+    static highlightSelection() {
 
         let selected = window.getSelection(); // The selected content
 
@@ -208,23 +238,36 @@ class UI {
                     range.startContainer.parentElement;
             let z = range.endContainer.parentElement; // Parent element of the end
 
-            const injectRegex = "((<\/span>)?|(<span class=.highlight.>)?)?";
+            const regexInjection = "((<\/span>)?|(<span class=.highlight.>)?)?";
+            // const reInj = "((<\/\w+\d?>)?|(<\w+\d?.*?>)?)?"
+            // const reInj = "((?:<\/\w+\d?>)?|(?:<\w+\d?=?.*?>)?)?"
+            const reInj = `((?:<\/\w+\d?>)?|(?:<\w+\d?.?"?=?.*?"?>)?)?`;
+            const escapeCharacters = ['(', ')', '+', '*', '?', '[', ']', '{', '}', '^', '$', '.', '|', '\\','\\a', '\\b', '\\B', '\\d', '\\D', '\\e', '\\f', '\\n', '\\r', '\\s', '\\S', '\\t', '\\v', '\\w', '\\W']
 
             let selectionArray = selectionText.split('');
 
             for (let i = 0; i < selectionArray.length; i++) {
-                if (i % 2 != 0) {
-                    selectionArray.splice(i, 0, injectRegex);
+                // Escape special characters
+                if (escapeCharacters.indexOf(selectionArray[i]) > -1) {
+                    selectionArray[i] = '\\'.concat('', selectionArray[i])
                 }
+
+                // Insert regex for every odd index
+                if (i % 2 != 0) {
+                    selectionArray.splice(i, 0, regexInjection);
+                } 
             }
 
             let selectionRegex = selectionArray.join('');
 
-            console.log(a.innerHTML.match(selectionRegex)[0]);
+            console.log(selectionArray);
+            // console.log(selectionText);
+            // console.log(selectionArray);
+            // console.log(a.innerHTML.match(selectionRegex)[0]);
 
             if (!a.classList.contains('highlight')) {
                 a.innerHTML = a.innerHTML
-                    .replace(new RegExp(`(${selectionText})`, 'g'), '<span class=highlight>$1</span>');
+                    .replace(new RegExp(`(${selectionRegex})`, 'g'), '<span class=highlight>$1</span>');
             } else {
                 a = a.parentElement;
                 a.innerHTML = a.innerHTML
@@ -233,38 +276,29 @@ class UI {
                 a.innerHTML = a.innerHTML
                     .replace(new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
             }
-            
-
-            // MY REGEX HELPERS
-
-            // A. Find expression span.highlight where expression /span follows:
-            // Find <span.highlight></span>
-            // REGEX: (<span class="highlight">).*(?=<\/span>) 
-
-            // B. Find the 1st /span (with span.highlight before it and /span after it)
-            // Find middle <span.highlight></span></span>
-            // REGEX: (?<=<span class="highlight">).*(<\/span>).*(?=<\/span>)
-
-            // C. Find middle <span.highlight><span.highlight></span>
-            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">).*(?=<\/span>)
-
-            // D. Find B or C
-            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">|<\/span>).*(?=<\/span>)
-
-            // E. Find middle 2 <span.highlight><span.highlight></span></span>
-            // REGEX: (?!<span class="highlight">).(<span class="highlight">).*(<\/span>).*(?=<\/span>)
-
-            // F. Find first and last occurance
-            // <span.highlight> ... </span>
-            // REGEX: (<span class="highlight">)?.*(<\/span>)(?!.*<\/span>)
-            // ... I could remove all the spans inside and wrap it in a new span ?? 
-
-            // G. Non-Capturing-Groups
-            // REGEX: (<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)
-
-
-    
         }
     }
     //#endregion
+
+    //#region Delete Selection
+    static deleteSelection(e) {
+
+        // replace the element with the plain text
+        if (e.target.classList.contains('highlight')) {
+            
+            // Get the plain text
+            let text = e.target.textContent;
+
+            // Get the html conent of the selection element
+            let html = e.target.outerHTML;
+            
+            // Get the parents inner html
+            let parentHtml = e.target.parentElement.innerHTML;
+
+            // Replace the inner html with the 
+            e.target.parentElement.innerHTML = parentHtml.replace(new RegExp(`(${html})`, 'g'), text);
+        }
+    }
+    //#endregion
+
 }

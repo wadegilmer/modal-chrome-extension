@@ -1,3 +1,30 @@
+// MY REGEX HELPERS
+
+            // A. Find expression span.highlight where expression /span follows:
+            // Find <span.highlight></span>
+            // REGEX: (<span class="highlight">).*(?=<\/span>) 
+
+            // B. Find the 1st /span (with span.highlight before it and /span after it)
+            // Find middle <span.highlight></span></span>
+            // REGEX: (?<=<span class="highlight">).*(<\/span>).*(?=<\/span>)
+
+            // C. Find middle <span.highlight><span.highlight></span>
+            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">).*(?=<\/span>)
+
+            // D. Find B or C
+            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">|<\/span>).*(?=<\/span>)
+
+            // E. Find middle 2 <span.highlight><span.highlight></span></span>
+            // REGEX: (?!<span class="highlight">).(<span class="highlight">).*(<\/span>).*(?=<\/span>)
+
+            // F. Find first and last occurance
+            // <span.highlight> ... </span>
+            // REGEX: (<span class="highlight">)?.*(<\/span>)(?!.*<\/span>)
+            // ... I could remove all the spans inside and wrap it in a new span ?? 
+
+            // G. Non-Capturing-Groups
+            // REGEX: (<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)
+
 let text = selection.toString(); // The selected text
 
 let range = selection.getRangeAt(0); // The Range Object of the selection

@@ -53,14 +53,19 @@ function switchHighlight(e) {
         UI.turnHighlightOn(e.target);
 
         // Initialize listener to wrap selected text in a span
-        document.body.addEventListener('click', UI.addHighlight);
+        document.body.addEventListener('click', UI.highlightSelection);
+
+        // Initialize listener to delete highlight
+        document.body.addEventListener('click', UI.deleteSelection);
     } 
     else { 
         // Change to button and the selection style
         UI.turnHighlightOff(e.target); 
 
         // Turn off listener to wrap selected text
-        document.body.removeEventListener('click', UI.addHighlight)
+        document.body.removeEventListener('click', UI.highlightSelection)
 
+        // Turn off listener to delete tab
+        document.body.removeEventListener('click', UI.deleteSelection);
     }
 }
