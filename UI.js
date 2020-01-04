@@ -192,64 +192,77 @@ class UI {
 
     //#region Highlight Selection
     static addHighlight() {
-        console.log('Inside the add highlight function');
-        
 
-        if(window.getSelection().toString() != '') {
+        let selected = window.getSelection(); // The selected content
 
-            let selection = window.getSelection(); // The selected content
-            console.log(selection.toString());
-    
-            let range = selection.getRangeAt(0); // The Range Object of the selection
+        if(selected.toString() != '') {
+
+            let selectionText = selected.toString(); // The selected text
+            let range = selected.getRangeAt(0); // The Range Object of the selection
             let clone = range.cloneRange(); // The Range Object clone of the selection
-    
+
             let a = range.startContainer.parentElement; // Parent element of the start
-            let n = a; // Parent element of the middle
+            let c = clone.startContainer.parentElement;
+            let n = range.startContainer.parentElement.nextElementSibling ? 
+                    range.startContainer.parentElement.nextElementSibling :
+                    range.startContainer.parentElement;
             let z = range.endContainer.parentElement; // Parent element of the end
 
-            let ai = a.innerHTML; // Inner html of first parent
-            let ni; // Inner html of middle parent
-            let zi = z.innerHTML; // Inner html of last parent
+            const injectRegex = "((<\/span>)?|(<span class=.highlight.>)?)?";
 
-            let ax = selection.anchorOffset; // Start index of selection
-            let ay = ai.length; // End index of first parent
+            let selectionArray = selectionText.split('');
 
-            let nx = 0; // Start index of middle parent
-            let ny; // End index of middle parent
-
-            let my; // End index of middle parent alternative
-
-            let zx = 0; // Start index of last parent
-            let zy = selection.focusOffset; // End index of selection
-    
-            // If the selection is within the same parent
-            if (a == z) {
-                ai = `
-                    ${ai.substring(0, ax)}
-                    <span class="highlight">
-                    ${ai.substring(ax, zy)}
-                    </span>
-                    ${ai.substring(zy, ay)}
-                `;
+            for (let i = 0; i < selectionArray.length; i++) {
+                if (i % 2 != 0) {
+                    selectionArray.splice(i, 0, injectRegex);
+                }
             }
 
-            // If the selection crosses over multiple parents
-            while (n != z) {
-                n = n.nextElementSibling;
-                ni = n.innerHTML;
-                ny = ni.length;
-                my = ni.length;
+            let selectionRegex = selectionArray.join('');
 
-                // If parent is the last parent
-                if (n == z) { my = zy }
+            console.log(a.innerHTML.match(selectionRegex)[0]);
 
-                ni = `
-                    <span class="highlight">
-                    ${ni.substring(nx, my)}
-                    </span>
-                    ${ai.substring(my, ny)}
-                `;
+            if (!a.classList.contains('highlight')) {
+                a.innerHTML = a.innerHTML
+                    .replace(new RegExp(`(${selectionText})`, 'g'), '<span class=highlight>$1</span>');
+            } else {
+                a = a.parentElement;
+                a.innerHTML = a.innerHTML
+                    .replace(new RegExp(`(${selectionRegex})`, 'g'), '<span class=highlight>$1</span>');
+                
+                a.innerHTML = a.innerHTML
+                    .replace(new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
             }
+            
+
+            // MY REGEX HELPERS
+
+            // A. Find expression span.highlight where expression /span follows:
+            // Find <span.highlight></span>
+            // REGEX: (<span class="highlight">).*(?=<\/span>) 
+
+            // B. Find the 1st /span (with span.highlight before it and /span after it)
+            // Find middle <span.highlight></span></span>
+            // REGEX: (?<=<span class="highlight">).*(<\/span>).*(?=<\/span>)
+
+            // C. Find middle <span.highlight><span.highlight></span>
+            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">).*(?=<\/span>)
+
+            // D. Find B or C
+            // REGEX: (?<=<span class="highlight">).*(<span class="highlight">|<\/span>).*(?=<\/span>)
+
+            // E. Find middle 2 <span.highlight><span.highlight></span></span>
+            // REGEX: (?!<span class="highlight">).(<span class="highlight">).*(<\/span>).*(?=<\/span>)
+
+            // F. Find first and last occurance
+            // <span.highlight> ... </span>
+            // REGEX: (<span class="highlight">)?.*(<\/span>)(?!.*<\/span>)
+            // ... I could remove all the spans inside and wrap it in a new span ?? 
+
+            // G. Non-Capturing-Groups
+            // REGEX: (<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)
+
+
     
         }
     }

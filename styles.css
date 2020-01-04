@@ -23,6 +23,7 @@ input.u-full-width:hover {
 
 .highlight {
     background-color: rgb(252, 243, 127) !important;
+    box-decoration-break: clone !important;
 }
 
 #hlBtn:hover {
