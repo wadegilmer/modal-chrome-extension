@@ -25,6 +25,35 @@
             // G. Non-Capturing-Groups
             // REGEX: (<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)
 
+
+
+///////////////÷÷÷÷÷÷÷÷÷/////////÷÷÷÷///÷÷///÷÷÷÷///÷////÷/
+            // for (let i = 0; i < selectionsRegex.length; i++) {
+                // if (a != z) {
+                //     console.log('this is the first or middle selection');
+                //     console.log(a);
+                //     console.log(selectionsRegex[i]);
+                // } else {
+                //     console.log('this is the last selection');
+                //     console.log(a);
+                //     console.log(selectionsRegex[i]);
+                // }
+
+                // if (a.classList.contains('highlight')) {
+                //     a = a.parentElement;
+                //     console.log('this contains a span.highlight');
+                // }
+
+                // a.innerHTML = a.innerHTML.replace(
+                //     new RegExp(`(${selectionsRegex[i]})`, 'g'), '<span class=highlight>$1</span>');
+                
+                // a.innerHTML = a.innerHTML.replace(
+                //     new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+
+                // a = a.nextElementSibling;
+            // }
+///////////////÷÷÷÷÷÷÷÷÷/////////÷÷÷÷÷//÷÷÷///÷÷÷/÷÷//÷//÷÷/
+
 let text = selection.toString(); // The selected text
 
 let range = selection.getRangeAt(0); // The Range Object of the selection

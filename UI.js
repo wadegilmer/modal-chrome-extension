@@ -181,11 +181,19 @@ class UI {
             let curserIndex = document.styleSheets[0].insertRule(`
                 .highlight:hover {
                     cursor: pointer;
+                    background-color: rgb(252, 243, 127);
                 }
             `, 1);
+            let anchorIndex = document.styleSheets[0].insertRule(`
+                a:link {
+                    pointer-events: none;
+                    cursor: default;
+                }
+            `, 2);
             // So we can have access the index to delete the rule later
             this.ruleIndex.push(selectionIndex);
-            this.ruleIndex.push(curserIndex)
+            this.ruleIndex.push(curserIndex);
+            this.ruleIndex.push(anchorIndex);
         } catch(DOMException) {
             console.log(`Ugh Ugh Ugh, You Didn't Say the Magic Word`);
             document.head.appendChild(style);
@@ -198,8 +206,15 @@ class UI {
             stylesheet.insertRule(`
                 .highlight:hover {
                     cursor: pointer;
+                    background-color: rgb(255, 249, 160) !important;
                 }
             `, stylesheet.cssRules.length);
+            stylesheet.insertRule(`
+                a:link {
+                    pointer-events: none;
+                    cursor: default;
+                }
+            `);
         }
     }
     //#endregion
@@ -212,9 +227,11 @@ class UI {
 
         // Delete the selection css changes
         try {
+            document.styleSheets[0].deleteRule(this.ruleIndex[2])
             document.styleSheets[0].deleteRule(this.ruleIndex[1])
             document.styleSheets[0].deleteRule(this.ruleIndex[0])
         } catch(DOMException) {
+            // TODO: try to delete all the rules
             document.styleSheets[document.styleSheets.length - 1].deleteRule(0);
         }
     }
@@ -232,50 +249,79 @@ class UI {
             let clone = range.cloneRange(); // The Range Object clone of the selection
 
             let a = range.startContainer.parentElement; // Parent element of the start
-            let c = clone.startContainer.parentElement;
-            let n = range.startContainer.parentElement.nextElementSibling ? 
-                    range.startContainer.parentElement.nextElementSibling :
-                    range.startContainer.parentElement;
+            // let c = clone.startContainer.parentElement;
+            let n = range.startContainer.parentElement.nextElementSibling;
             let z = range.endContainer.parentElement; // Parent element of the end
 
             const regexInjection = "((<\/span>)?|(<span class=.highlight.>)?)?";
             // const reInj = "((<\/\w+\d?>)?|(<\w+\d?.*?>)?)?"
             // const reInj = "((?:<\/\w+\d?>)?|(?:<\w+\d?=?.*?>)?)?"
-            const reInj = `((?:<\/\w+\d?>)?|(?:<\w+\d?.?"?=?.*?"?>)?)?`;
-            const escapeCharacters = ['(', ')', '+', '*', '?', '[', ']', '{', '}', '^', '$', '.', '|', '\\','\\a', '\\b', '\\B', '\\d', '\\D', '\\e', '\\f', '\\n', '\\r', '\\s', '\\S', '\\t', '\\v', '\\w', '\\W']
+            const reInj = "(<[^>]*>)?";
+            // const reInj = `((?:<\/\w+\d?>)?|(?:<\w+\d?.?=?"?.*?"?>)?)?`;
+            const escapeCharacters = ['(', ')', '+', '*', '?', '[', ']', '{', '}', '^', '$', '.', '|', '\\','\\a', '\\b', '\\B', '\\d', '\\D', '\\e', '\\f', '\\n','\\r', '\\s', '\\S', '\\t', '\\v', '\\w', '\\W']
 
-            let selectionArray = selectionText.split('');
+            // START
+            // INSERT SINGLE SELECTION
+            // END
 
-            for (let i = 0; i < selectionArray.length; i++) {
-                // Escape special characters
-                if (escapeCharacters.indexOf(selectionArray[i]) > -1) {
-                    selectionArray[i] = '\\'.concat('', selectionArray[i])
+            // Split by new line if their is one
+            let selectionsArray = selectionText.split(/\r|.\n/)
+
+            // Array to hold regex expression strings of each text selection
+            let selectionsRegex = []
+            
+            // Turn text selection into a regular expression
+            selectionsArray.forEach((selectionText) => {
+                // Split up every character
+                let selectionArray = selectionText.split('');
+
+                for (let i = 0; i < selectionArray.length; i++) {
+
+                    // Escape special characters
+                    if (escapeCharacters.indexOf(selectionArray[i]) > -1) {
+                        selectionArray[i] = '\\'.concat('', selectionArray[i])
+                    }
+                    
+                    // Insert regex for every odd index
+                    if (i % 2 != 0) {
+                        selectionArray.splice(i, 0, reInj);
+                    } 
+                }
+                // Push the regular expression back into a string
+                let selectionRegex = selectionArray.join('');
+
+                // Push regular expression into an array
+                selectionsRegex.push(selectionRegex);
+            });
+
+            // console.log(selectionsRegex);
+
+            // UI.replaceHTML(a, n, z, selectionsRegex);
+
+            selectionsRegex.forEach((regex, index, array) => {
+                if (a != z) {
+                    console.log('this is the first or middle selection');
+                    console.log(a.innerHTML);
+                    console.log(regex);
+                } else {
+                    console.log('this is the first or last selection');
+                    console.log(a.innerHTML);
+                    console.log(regex);
                 }
 
-                // Insert regex for every odd index
-                if (i % 2 != 0) {
-                    selectionArray.splice(i, 0, regexInjection);
-                } 
-            }
+                if (a.classList.contains('highlight')) {
+                    a = a.parentElement;
+                    console.log('this contains a span.highlight');
+                }
 
-            let selectionRegex = selectionArray.join('');
-
-            console.log(selectionArray);
-            // console.log(selectionText);
-            // console.log(selectionArray);
-            // console.log(a.innerHTML.match(selectionRegex)[0]);
-
-            if (!a.classList.contains('highlight')) {
-                a.innerHTML = a.innerHTML
-                    .replace(new RegExp(`(${selectionRegex})`, 'g'), '<span class=highlight>$1</span>');
-            } else {
-                a = a.parentElement;
-                a.innerHTML = a.innerHTML
-                    .replace(new RegExp(`(${selectionRegex})`, 'g'), '<span class=highlight>$1</span>');
+                a.innerHTML = a.innerHTML.replace(
+                    new RegExp(`(${regex})`, 'g'), '<span class=highlight>$1</span>');
                 
-                a.innerHTML = a.innerHTML
-                    .replace(new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
-            }
+                a.innerHTML = a.innerHTML.replace(
+                    new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+
+                a = a.nextElementSibling;
+            });
         }
     }
     //#endregion
@@ -301,4 +347,52 @@ class UI {
     }
     //#endregion
 
+    static replaceHTML(a, n, z, regex) {
+        let i = 0;
+
+        if (a.classList.contains('highlight')) {
+            a = a.parentElement;
+            console.log('this contains a span.highlight');
+        }
+
+        a.innerHTML = a.innerHTML.replace(
+            new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
+        
+        a.innerHTML = a.innerHTML.replace(
+            new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+
+        if (z != a) {
+            while (n != z) {
+                i++;
+
+                if (n.classList.contains('highlight')) {
+                    n = n.parentElement;
+                    console.log('this contains a span.highlight');
+                }
+        
+                n.innerHTML = n.innerHTML.replace(
+                    new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
+                
+                n.innerHTML = n.innerHTML.replace(
+                    new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+    
+                n = n.nextElementSibling;
+            }
+            i++;
+
+            if (z.classList.contains('highlight')) {
+                z = z.parentElement;
+                console.log('this contains a span.highlight');
+            }
+    
+            z.innerHTML = z.innerHTML.replace(
+                new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
+            
+            z.innerHTML = z.innerHTML.replace(
+                new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+        }
+    }
+
 }
+
+

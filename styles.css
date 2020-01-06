@@ -22,7 +22,7 @@ input.u-full-width:hover {
 }
 
 .highlight {
-    background-color: rgb(255, 239, 97) !important;
+    background-color: rgb(255, 239, 97);
     box-decoration-break: clone !important;
     border-radius: 3px;
     padding-top: .3%;
