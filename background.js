@@ -32,7 +32,7 @@ async function fetchTabData(action) {
             // fetch the highlights
             let highlights = await fetchHighlights(tab.id)
 
-            console.log(highlights);
+            // console.log(highlights);
             
             // create new tab instance
             let tabMeta = await new Tab(tab.id, tab.title, tags, highlights);
@@ -87,7 +87,9 @@ function fetchHighlights(tabId) {
             code: `document.body.firstChild.firstChild.children[2].innerHTML;`},
             (results) => {
                 try {
-                    resolve(results);
+                    let arr = results[0].split(/<hr>/gu)
+                    arr.pop();
+                    resolve(arr);
                 } catch(err) {
                     console.log(err);
                     resolve(new Array());
