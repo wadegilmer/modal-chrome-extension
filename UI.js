@@ -51,6 +51,7 @@ class UI {
             </div>
 
             <div class="tags"></div>
+            <div id="all-highlights" style="display: none;"></div>
         `;
 
         // const div = document.createElement('div');
@@ -249,79 +250,45 @@ class UI {
             let clone = range.cloneRange(); // The Range Object clone of the selection
 
             let a = range.startContainer.parentElement; // Parent element of the start
-            // let c = clone.startContainer.parentElement;
+            let c = clone.startContainer.parentElement;
             let n = range.startContainer.parentElement.nextElementSibling;
             let z = range.endContainer.parentElement; // Parent element of the end
 
-            const regexInjection = "((<\/span>)?|(<span class=.highlight.>)?)?";
+            // const regexInjection = "((<\/span>)?|(<span id=.*,.* class=.highlight.>)?)?";
             // const reInj = "((<\/\w+\d?>)?|(<\w+\d?.*?>)?)?"
             // const reInj = "((?:<\/\w+\d?>)?|(?:<\w+\d?=?.*?>)?)?"
-            const reInj = "(<[^>]*>)?";
             // const reInj = `((?:<\/\w+\d?>)?|(?:<\w+\d?.?=?"?.*?"?>)?)?`;
+            const regexInjection = "(<[^>]*>)?";
             const escapeCharacters = ['(', ')', '+', '*', '?', '[', ']', '{', '}', '^', '$', '.', '|', '\\','\\a', '\\b', '\\B', '\\d', '\\D', '\\e', '\\f', '\\n','\\r', '\\s', '\\S', '\\t', '\\v', '\\w', '\\W']
 
-            // START
-            // INSERT SINGLE SELECTION
-            // END
+            let selectionArray = selectionText.split('');
 
-            // Split by new line if their is one
-            let selectionsArray = selectionText.split(/\r|.\n/)
-
-            // Array to hold regex expression strings of each text selection
-            let selectionsRegex = []
-            
-            // Turn text selection into a regular expression
-            selectionsArray.forEach((selectionText) => {
-                // Split up every character
-                let selectionArray = selectionText.split('');
-
-                for (let i = 0; i < selectionArray.length; i++) {
-
-                    // Escape special characters
-                    if (escapeCharacters.indexOf(selectionArray[i]) > -1) {
-                        selectionArray[i] = '\\'.concat('', selectionArray[i])
-                    }
-                    
-                    // Insert regex for every odd index
-                    if (i % 2 != 0) {
-                        selectionArray.splice(i, 0, reInj);
-                    } 
-                }
-                // Push the regular expression back into a string
-                let selectionRegex = selectionArray.join('');
-
-                // Push regular expression into an array
-                selectionsRegex.push(selectionRegex);
-            });
-
-            // console.log(selectionsRegex);
-
-            // UI.replaceHTML(a, n, z, selectionsRegex);
-
-            selectionsRegex.forEach((regex, index, array) => {
-                if (a != z) {
-                    console.log('this is the first or middle selection');
-                    console.log(a.innerHTML);
-                    console.log(regex);
-                } else {
-                    console.log('this is the first or last selection');
-                    console.log(a.innerHTML);
-                    console.log(regex);
+            for (let i = 0; i < selectionArray.length; i++) {
+                // Escape special characters
+                if (escapeCharacters.indexOf(selectionArray[i]) > -1) {
+                    selectionArray[i] = '\\'.concat('', selectionArray[i])
                 }
 
-                if (a.classList.contains('highlight')) {
-                    a = a.parentElement;
-                    console.log('this contains a span.highlight');
-                }
+                // Insert regex for every odd index
+                if (i % 2 != 0) {
+                    selectionArray.splice(i, 0, regexInjection);
+                } 
+            }
 
-                a.innerHTML = a.innerHTML.replace(
-                    new RegExp(`(${regex})`, 'g'), '<span class=highlight>$1</span>');
-                
-                a.innerHTML = a.innerHTML.replace(
-                    new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
+            let selectionRegex = selectionArray.join('');
 
-                a = a.nextElementSibling;
-            });
+            // Change styles
+            if (a.classList.contains('highlight')) {
+                a = a.parentElement;
+            }
+
+            a.innerHTML = a.innerHTML.replace(
+                new RegExp(`(${selectionRegex})`, 'g')
+                , `<span id=${UI.getScrollingPosition()} class=highlight>$1</span>`);
+
+            a.innerHTML = a.innerHTML.replace(
+                new RegExp(`(.*)(<span id=".*" class="highlight">.*)(?:<span (?:id=".*") class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g')
+                , '$1$2$3$4$5')
         }
     }
     //#endregion
@@ -347,52 +314,51 @@ class UI {
     }
     //#endregion
 
-    static replaceHTML(a, n, z, regex) {
-        let i = 0;
-
-        if (a.classList.contains('highlight')) {
-            a = a.parentElement;
-            console.log('this contains a span.highlight');
-        }
-
-        a.innerHTML = a.innerHTML.replace(
-            new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
-        
-        a.innerHTML = a.innerHTML.replace(
-            new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
-
-        if (z != a) {
-            while (n != z) {
-                i++;
-
-                if (n.classList.contains('highlight')) {
-                    n = n.parentElement;
-                    console.log('this contains a span.highlight');
-                }
-        
-                n.innerHTML = n.innerHTML.replace(
-                    new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
-                
-                n.innerHTML = n.innerHTML.replace(
-                    new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
-    
-                n = n.nextElementSibling;
-            }
-            i++;
-
-            if (z.classList.contains('highlight')) {
-                z = z.parentElement;
-                console.log('this contains a span.highlight');
-            }
-    
-            z.innerHTML = z.innerHTML.replace(
-                new RegExp(`(${regex[i]})`, 'g'), '<span class=highlight>$1</span>');
-            
-            z.innerHTML = z.innerHTML.replace(
-                new RegExp(`(.*)(<span class="highlight">.*)(?:<span class="highlight">)(.*)(?:<\/span>)(.*<\/span>)(.*)`, 'g'), '$1$2$3$4$5')
-        }
+    //#region Get Scroll Position
+    static getScrollingPosition()      
+    {      
+      var position = [0, 0];      
+          
+      if (typeof window.pageYOffset != 'undefined')      
+      {      
+        position = [      
+            window.pageXOffset,      
+            window.pageYOffset      
+        ];      
+      }      
+          
+      else if (typeof document.documentElement.scrollTop      
+          != 'undefined' && document.documentElement.scrollTop > 0)      
+      {      
+        position = [      
+            document.documentElement.scrollLeft,      
+            document.documentElement.scrollTop      
+        ];      
+      }      
+          
+      else if (typeof document.body.scrollTop != 'undefined')      
+      {      
+        position = [      
+            document.body.scrollLeft,      
+            document.body.scrollTop      
+        ];      
+      }      
+          
+      return position;      
     }
+    //#endregion
 
+    //#region Insert Highlight
+    static collectHighlights() {
+
+        let elems = document.querySelectorAll('.highlight');
+        let modal = document.querySelector('#all-highlights');
+
+        elems.forEach((el) => {
+            modal.appendChild(el)
+        });
+    }
+    //#endregion
 }
 
 

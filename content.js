@@ -30,7 +30,15 @@ function openModal(port) {
                 document.querySelector('#hlBtn').addEventListener('click', switchHighlight);
 
                 // Initialize listener for when the submit button is pressed
-                document.querySelector('#tagBtn').addEventListener('click', () => port.postMessage({action: "fetchAll"}));
+                document.querySelector('#tagBtn').addEventListener('click', () => {
+                    
+                    // Collect the highlights onto the modal
+                    UI.collectHighlights();
+                    
+                    // Send message to the bg.js
+                    port.postMessage({action: "fetchAll"})
+                
+                });
 
             }
             else {
